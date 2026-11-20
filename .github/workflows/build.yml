@@ -32,6 +32,10 @@ jobs:
 
       - name: Extract project
         run: unzip -q MyTVLauncher-tvOS-Offline-Video-v1.2.zip -d buildsrc
+              - name: Remove duplicate image resources
+        run: |
+          rm -f buildsrc/MyTVLauncher/app/src/main/res/raw/aurora_ambient.jpg
+          rm -f buildsrc/MyTVLauncher/app/src/main/res/raw/nebula_ambient.jpg
 
       - name: Build Android APK
         run: gradle -p buildsrc/MyTVLauncher assembleDebug
