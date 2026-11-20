@@ -1,0 +1,28 @@
+
+      - name: Extract project ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          ZIP_FILE="$(find . -maxdepth 1 -type f -name 'MyTVLauncher-tvOS-Offline-Video-*.zip' -print -quit)"
+
+          if [ -z "$ZIP_FILE" ]; then
+            echo "Project ZIP not found"
+            exit 1
+          fi
+
+          mkdir -p buildsrc
+          unzip -oq "$ZIP_FILE" -d buildsrc
+
+          PROJECT_DIR="$(find buildsrc -type f \( -name settings.gradle.kts -o -name settings.gradle \) -printf '%h\n' | head -n 1)"
+
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "Could not locate Gradle project"
+            find buildsrc -maxdepth 4 -type f
+            exit 1
+          fi
+
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Found project: $PROJECT_DIR"
+
+      - name: Build Android APK
+        run: gradle -p "$PROJECT_DIR" :app:assembleDebug
