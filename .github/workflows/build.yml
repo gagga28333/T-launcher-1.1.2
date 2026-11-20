@@ -1,0 +1,43 @@
+
+name: Build My TV Launcher
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'MyTVLauncher-tvOS-Offline-Video-v1.2.zip'
+      - '.github/workflows/build.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract project
+        run: unzip -q MyTVLauncher-tvOS-Offline-Video-v1.2.zip -d buildsrc
+
+      - name: Build Android APK
+        run: gradle -p buildsrc/MyTVLauncher assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyTVLauncher-APK
+          path: buildsrc/MyTVLauncher/app/build/outputs/apk/debug/app-debug.apk
